@@ -91,6 +91,8 @@ shinyServer(function(input, output) {
           guides(color = FALSE, size = FALSE) +
           theme_nothing()
       }
+      temps.nice <- temps %>%
+        mutate(nice.label = paste0(temp, "°, ", month, ". ", day))
       
       temps.1812.plot <- ggplot(data = temps.nice, aes(x = long, y = temp)) +
         geom_line() +
