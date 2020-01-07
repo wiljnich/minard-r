@@ -1,0 +1,13 @@
+name: minard-r
+title: minard-r
+username:
+account: wiljnich
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1632159
+bundleId: 2710808
+url: https://wiljnich.shinyapps.io/minard-r/
+when: 1578360374.74415
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md

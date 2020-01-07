@@ -9,8 +9,46 @@ library(ggplot2)
 
 shinyServer(function(input, output) {
    
-  output$distPlot <- renderPlot({
+  output$hannibal <- renderPlot({
     if(input$select == 1){
+      
+      cities <- read.table("data/hannibal/cities.txt",
+                           header = TRUE, stringsAsFactors = FALSE)
+      troops <- read.table("data/hannibal/troops.txt",
+                           header = TRUE, stringsAsFactors = FALSE)
+      
+      if(input$map ==TRUE){
+        hannibal.box <- c(left = -8, bottom = 39, right = 14, top = 46.4)
+        hannibal.map <- get_stamenmap(bbox = hannibal.box, zoom = 8, maptype = "terrain-background", where = "cache")
+      
+        hannibal.plot <- ggmap(hannibal.map) +
+          geom_path(data = troops, aes(x = long, y = lat, group = group, color = direction, size = troops), lineend = "round") +
+          geom_point(data = cities, aes(x = long, y = lat),color = "#000000") +
+          geom_text_repel(data = cities, aes(x = long, y = lat, label = city), color = "#000000") +
+          scale_size(range = c(0.1, 7.5)) + 
+          scale_colour_manual(values = c("#DFC17E", "#252523")) +
+          guides(color = FALSE, size = FALSE) +
+          theme_nothing()
+      }
+      
+      else {
+        hannibal.plot <- ggplot() +
+          geom_path(data = troops, aes(x = long, y = lat, group = group, color = direction, size = troops), lineend = "round") +
+          geom_point(data = cities, aes(x = long, y = lat),color = "#000000") +
+          geom_text_repel(data = cities, aes(x = long, y = lat, label = city), color = "#000000") +
+          scale_size(range = c(0.1, 7.5)) + 
+          scale_colour_manual(values = c("#DFC17E", "#252523")) +
+          guides(color = FALSE, size = FALSE) +
+          theme_nothing()
+      }
+      
+      hannibal.plot
+      
+    }
+  })
+  
+  output$napoleon <- renderPlot({
+    if(input$select == 2){
       
       cities <- read.table("data/napoleon/cities.txt",
                            header = TRUE, stringsAsFactors = FALSE)
@@ -19,18 +57,40 @@ shinyServer(function(input, output) {
       temps <- read.table("data/napoleon/temps.txt",
                           header = TRUE, stringsAsFactors = FALSE) %>% mutate(date = dmy(date))
       
-      march.1812.plot.simple <- ggplot() +
-        geom_path(data = troops, aes(x = long, y = lat, group = group, 
-                                     color = direction, size = survivors),
-                  lineend = "round") +
-        geom_point(data = cities, aes(x = long, y = lat),
-                   color = "#DC5B44") +
-        geom_text_repel(data = cities, aes(x = long, y = lat, label = city),
-                        color = "#DC5B44") +
-        scale_size(range = c(0.5, 10)) + 
-        scale_colour_manual(values = c("#DFC17E", "#252523")) +
-        guides(color = FALSE, size = FALSE) +
-        theme_nothing()
+      if(input$map==TRUE){
+        march.1812.ne.europe <- c(left = 23.5, bottom = 53.4, right = 38.1, top = 56.3)
+        
+        march.1812.ne.europe.map <- get_stamenmap(bbox = march.1812.ne.europe, zoom = 8,
+                                                  maptype = "terrain-background", where = "cache")
+        
+        march.1812.plot.simple <- ggmap(march.1812.ne.europe.map) +
+          geom_path(data = troops, aes(x = long, y = lat, group = group, 
+                                       color = direction, size = survivors),
+                    lineend = "round") +
+          geom_point(data = cities, aes(x = long, y = lat),
+                     color = "#000000") +
+          geom_text_repel(data = cities, aes(x = long, y = lat, label = city),
+                          color = "#000000") +
+          scale_size(range = c(0.5, 10)) + 
+          scale_colour_manual(values = c("#DFC17E", "#D3D3D3")) +
+          guides(color = FALSE, size = FALSE) +
+          theme_nothing()
+      }
+      
+      else {
+        march.1812.plot.simple <- ggplot() +
+          geom_path(data = troops, aes(x = long, y = lat, group = group, 
+                                       color = direction, size = survivors),
+                    lineend = "round") +
+          geom_point(data = cities, aes(x = long, y = lat),
+                     color = "#000000") +
+          geom_text_repel(data = cities, aes(x = long, y = lat, label = city),
+                          color = "#000000") +
+          scale_size(range = c(0.5, 10)) + 
+          scale_colour_manual(values = c("#DFC17E", "#D3D3D3")) +
+          guides(color = FALSE, size = FALSE) +
+          theme_nothing()
+      }
       
       temps.1812.plot <- ggplot(data = temps.nice, aes(x = long, y = temp)) +
         geom_line() +
@@ -51,38 +111,11 @@ shinyServer(function(input, output) {
       
       panels <- both.1812.plot.simple$layout$t[grep("panel", both.1812.plot.simple$layout$name)]
       
-      both.1812.plot.simple$heights[panels] <- unit(c(3, 1), "null")
+      both.1812.plot.simple$heights[panels] <- unit(c(map.panel.height, 0.1), "null")# unit(c(3, 1), "null")
       
       grid::grid.newpage()
       grid::grid.draw(both.1812.plot.simple)
-    }
-    
-    else {
-      
-      cities <- read.table("data/hannibal/cities.txt",
-                           header = TRUE, stringsAsFactors = FALSE)
-      troops <- read.table("data/hannibal/troops.txt",
-                           header = TRUE, stringsAsFactors = FALSE)
-      
-      hannibal.plot <- ggplot() +
-        geom_path(data = troops, aes(x = long, y = lat, group = group, color = direction, size = troops), lineend = "round") +
-        geom_point(data = cities, aes(x = long, y = lat),color = "#000000") +
-        geom_text_repel(data = cities, aes(x = long, y = lat, label = city), color = "#000000") +
-        scale_size(range = c(0.1, 7.5)) + 
-        scale_colour_manual(values = c("#DFC17E", "#252523")) +
-        guides(color = FALSE, size = FALSE) +
-        theme_nothing()
-      
-      tempsII <- ggplot(data = NULL, aes(x = NULL, y = NULL)) +
-        theme_nothing()
-      
-      bothII <- rbind(ggplotGrob(hannibal.plot),ggplotGrob(tempsII))
-      panels <- bothII$layout$t[grep("panel", bothII$layout$name)]
-      bothII$heights[panels] <- unit(c(3, 1), "null")
-      grid::grid.newpage()
-      grid::grid.draw(bothII)
       
     }
   })
-  
 })
