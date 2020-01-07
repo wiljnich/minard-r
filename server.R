@@ -113,6 +113,7 @@ shinyServer(function(input, output) {
       
       panels <- both.1812.plot.simple$layout$t[grep("panel", both.1812.plot.simple$layout$name)]
       
+      map.panel.height <- both.1812.plot.simple$heights[panels][1]
       both.1812.plot.simple$heights[panels] <- unit(c(map.panel.height, 0.1), "null")# unit(c(3, 1), "null")
       
       grid::grid.newpage()
